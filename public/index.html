@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Demo</title>
+<style>body{font-family:sans-serif;background:#0f172a;color:#e2e8f0;padding:32px}
+.card{background:#1e293b;padding:24px;border-radius:12px;margin-bottom:16px;max-width:700px}
+h1{color:#f59e0b}h2{color:#3b82f6;font-size:1.1rem}
+button{background:#3b82f6;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:8px 8px 0 0}
+.resultado{background:#0f172a;padding:12px;border-radius:8px;margin-top:12px;font-family:monospace;font-size:.85rem;color:#10b981}</style></head>
+<body><h1>Demo de Seguranca</h1>
+<div class="card"><h2>1. Headers</h2><p>F12 &gt; Network &gt; veja os headers de seguranca</p></div>
+<div class="card"><h2>2. Rate Limit</h2><button onclick="loginErrado()">Login errado</button><button onclick="loginCerto()">Login correto</button><div class="resultado" id="r1">Aguardando...</div></div>
+<div class="card"><h2>3. Status</h2><button onclick="status()">Ver status</button><div class="resultado" id="r2">Aguardando...</div></div>
+<div class="card"><h2>4. Erro 500</h2><button onclick="erro()">Testar</button><div class="resultado" id="r3">Aguardando...</div></div>
+<script>
+async function loginErrado(){const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:"x@x.com",senha:"errada"})});const d=await r.json();document.getElementById("r1").textContent="Status "+r.status+": "+JSON.stringify(d);}
+async function loginCerto(){const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:"demo@demo.com",senha:"123456"})});const d=await r.json();document.getElementById("r1").textContent="Status "+r.status+": "+JSON.stringify(d);}
+async function status(){const r=await fetch("/api/status");const d=await r.json();document.getElementById("r2").textContent=JSON.stringify(d);}
+async function erro(){const r=await fetch("/api/erro");const d=await r.json();document.getElementById("r3").textContent="Status "+r.status+": "+JSON.stringify(d);}
+status();
+</script></body></html>
