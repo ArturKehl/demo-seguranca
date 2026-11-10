@@ -1,18 +1,354 @@
-﻿<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Demo</title>
-<style>body{font-family:sans-serif;background:#0f172a;color:#e2e8f0;padding:32px}
-.card{background:#1e293b;padding:24px;border-radius:12px;margin-bottom:16px;max-width:700px}
-h1{color:#f59e0b}h2{color:#3b82f6;font-size:1.1rem}
-button{background:#3b82f6;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:8px 8px 0 0}
-.resultado{background:#0f172a;padding:12px;border-radius:8px;margin-top:12px;font-family:monospace;font-size:.85rem;color:#10b981}</style></head>
-<body><h1>Demo de Seguranca</h1>
-<div class="card"><h2>1. Headers</h2><p>F12 &gt; Network &gt; veja os headers de seguranca</p></div>
-<div class="card"><h2>2. Rate Limit</h2><button onclick="loginErrado()">Login errado</button><button onclick="loginCerto()">Login correto</button><div class="resultado" id="r1">Aguardando...</div></div>
-<div class="card"><h2>3. Status</h2><button onclick="status()">Ver status</button><div class="resultado" id="r2">Aguardando...</div></div>
-<div class="card"><h2>4. Erro 500</h2><button onclick="erro()">Testar</button><div class="resultado" id="r3">Aguardando...</div></div>
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login - Demo Seguranca</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
+
+  body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .login-box {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid #334155;
+  }
+
+  .logo {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #f59e0b;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .sub {
+    text-align: center;
+    color: #94a3b8;
+    font-size: .85rem;
+    margin-bottom: 32px;
+  }
+
+  label {
+    display: block;
+    color: #94a3b8;
+    font-size: .85rem;
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 1rem;
+    transition: border-color .2s;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .msg {
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-size: .9rem;
+    display: none;
+  }
+
+  .msg.erro {
+    background: rgba(239, 68, 68, 0.15);
+    border-left: 4px solid #ef4444;
+    color: #fca5a5;
+    display: block;
+  }
+
+  .msg.sucesso {
+    background: rgba(16, 185, 129, 0.15);
+    border-left: 4px solid #10b981;
+    color: #6ee7b7;
+    display: block;
+  }
+
+  .demo-info {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 24px;
+    font-size: .8rem;
+    color: #94a3b8;
+    line-height: 1.8;
+  }
+
+  .demo-info strong {
+    color: #f59e0b;
+  }
+
+  .demo-info code {
+    background: #1e293b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #e2e8f0;
+    font-size: .75rem;
+  }
+
+  #telaLogin, #telaDashboard {
+    transition: opacity .3s;
+  }
+
+  .hidden { display: none !important; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    background: #312e81;
+    color: #a5b4fc;
+  }
+
+  .badge.professor { background: #7c2d12; color: #fdba74; }
+  .badge.aluno { background: #14532d; color: #86efac; }
+
+  .stat {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .stat .num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f59e0b;
+    display: block;
+  }
+
+  .stat .lbl {
+    font-size: .75rem;
+    color: #94a3b8;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .btn-sair {
+    background: #dc2626 !important;
+    margin-top: 16px;
+  }
+
+  .btn-sair:hover {
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4) !important;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-box" id="telaLogin">
+  <div class="logo">🔐</div>
+  <h1>Demo de Seguranca</h1>
+  <p class="sub">Faca login para continuar</p>
+
+  <form id="formLogin">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="seu@email.com" required autocomplete="username" />
+
+    <label>Senha</label>
+    <input type="password" id="senha" placeholder="••••••" required autocomplete="current-password" />
+
+    <button type="submit" id="btnEntrar">Entrar</button>
+  </form>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="demo-info">
+    <strong>Contas de teste:</strong><br>
+    👨‍🏫 Professor: <code>professor@demo.com</code> / <code>prof123</code><br>
+    🎓 Aluno: <code>aluno@demo.com</code> / <code>aluno123</code>
+    <br><br>
+    <strong>⚠️ Rate limit:</strong> 5 tentativas / 15 min
+  </div>
+</div>
+
+<div class="login-box hidden" id="telaDashboard">
+  <div class="logo">🎉</div>
+  <h1>Bem-vindo!</h1>
+  <p class="sub" id="subUsuario">Carregando...</p>
+
+  <div style="text-align: center; margin-bottom: 16px;">
+    <span class="badge" id="badgeTipo">...</span>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><span class="num" id="statPontos">0</span><span class="lbl">Pontos</span></div>
+    <div class="stat"><span class="num" id="statNivel">0</span><span class="lbl">Nivel</span></div>
+    <div class="stat"><span class="num" id="statQuizzes">0</span><span class="lbl">Quizzes</span></div>
+    <div class="stat"><span class="num" id="statConquistas">0</span><span class="lbl">Conquistas</span></div>
+  </div>
+
+  <button class="btn-sair" id="btnSair">Sair</button>
+</div>
+
 <script>
-async function loginErrado(){const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:"x@x.com",senha:"errada"})});const d=await r.json();document.getElementById("r1").textContent="Status "+r.status+": "+JSON.stringify(d);}
-async function loginCerto(){const r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:"demo@demo.com",senha:"123456"})});const d=await r.json();document.getElementById("r1").textContent="Status "+r.status+": "+JSON.stringify(d);}
-async function status(){const r=await fetch("/api/status");const d=await r.json();document.getElementById("r2").textContent=JSON.stringify(d);}
-async function erro(){const r=await fetch("/api/erro");const d=await r.json();document.getElementById("r3").textContent="Status "+r.status+": "+JSON.stringify(d);}
-status();
-</script></body></html>
+  const API = '/api';
+
+  // Se ja tem token, vai direto para o dashboard
+  const tokenSalvo = localStorage.getItem('token');
+  if (tokenSalvo) {
+    mostrarDashboard();
+  }
+
+  document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+    const btn = document.getElementById('btnEntrar');
+    const msg = document.getElementById('msg');
+
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+    msg.className = 'msg';
+    msg.textContent = '';
+
+    try {
+      const res = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error('Muitas tentativas. Aguarde 15 minutos.');
+        }
+        throw new Error(data.erro || 'Erro ao fazer login');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+      msg.className = 'msg sucesso';
+      msg.textContent = 'Login realizado! Redirecionando...';
+
+      setTimeout(() => mostrarDashboard(), 600);
+
+    } catch (err) {
+      msg.className = 'msg erro';
+      msg.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  });
+
+  async function mostrarDashboard() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    document.getElementById('telaLogin').classList.add('hidden');
+    document.getElementById('telaDashboard').classList.remove('hidden');
+
+    try {
+      const res = await fetch(API + '/dashboard', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        location.reload();
+        return;
+      }
+
+      const data = await res.json();
+      const u = data.usuario;
+
+      document.getElementById('subUsuario').textContent = 'Ola, ' + u.nome + '!';
+      document.getElementById('statPontos').textContent = data.estatisticas.pontos;
+      document.getElementById('statNivel').textContent = data.estatisticas.nivel;
+      document.getElementById('statQuizzes').textContent = data.estatisticas.quizzes;
+      document.getElementById('statConquistas').textContent = data.estatisticas.conquistas;
+
+      const badge = document.getElementById('badgeTipo');
+      badge.textContent = u.tipo === 'professor' ? '👨‍🏫 Professor' : '🎓 Aluno';
+      badge.className = 'badge ' + u.tipo;
+
+    } catch (e) {
+      alert('Erro: ' + e.message);
+    }
+  }
+
+  document.getElementById('btnSair').addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+    try {
+      await fetch(API + '/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+    } catch (e) {}
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    location.reload();
+  });
+</script>
+
+</body>
+</html>
